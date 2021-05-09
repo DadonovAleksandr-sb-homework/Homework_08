@@ -61,7 +61,6 @@ namespace Homework_08
             InitCompany(ref company);
             ProcessCompany(ref company);
             SaveCompany(ref company);
-            Console.ReadLine();
         }
 
         private static void InitCompany(ref Company company)
@@ -98,8 +97,8 @@ namespace Homework_08
                     userAnswer = Console.ReadLine();
                     if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
                     {
+                        company.Clear();
                         company.Name = userAnswer;
-                        company.Departments = new Departments();
                         break;
                     }
                 } while (true);
@@ -109,156 +108,9 @@ namespace Homework_08
 
         private static void ProcessCompany(ref Company company)
         {
-            
-        }
-
-        private static void ProcessDepartment(Department department)
-        {
-            department.Print();
-            var userAnswer = 0;
-            var exit = false;
-            do
-            {
-                Console.Write("Выберете желаемое действие (1-перейти к списку работников; 2-перейти к списку департаментов): ");
-                if (int.TryParse(Console.ReadLine().Trim(), out userAnswer))
-                {
-                    switch (userAnswer)
-                    {
-                        case 1:
-                            WorkersProcess(ref department.Workers, department.Name, );
-                            break;
-                        case 2:
-                            WorkersProcess(ref department.Workers, department.Name, );
-                            break;
-                            
-                            
-                    }    
-                }
-                else
-                {
-                    Console.WriteLine("Невозможно распознать ответ");
-                }
-            } while (!exit);
-        }
-
-        private static void WorkersProcess(ref Workers workers, string departmentName, int workersCount)
-        {
-            var userAnwer = 0;
-            var exit = false;
-            workers.Print();
-            do
-            {
-                Console.Write("Выберете желаемое действие (1-добавить; 2-удалить; 3-редактировать; 4-сортировать; 5-выход): ");
-                if (int.TryParse(Console.ReadLine().Trim(), out userAnwer))
-                {
-                    switch(userAnwer)
-                    {
-                        case 1: // добавить сотрудника
-                            AddWorker(ref workers, departmentName, workersCount);
-                            break;
-                        case 2: // удалить сотрудника
-                            DelWorker(ref workers);
-                            break;
-                        case 3: // редактировать сотрудника
-                            EditWorker(ref workers);
-                            break;
-                        case 4: // сортировать сотрудников
-                            SortWorekers(ref workers);
-                            break;
-                        case 5: // выход
-                            exit = true;
-                            break;
-                        default:
-                            Console.WriteLine("Невозможно распознать ответ");
-                            break;
-                    }  
-                }
-            } while (!exit);
-
+            company.Process(company.Name);
         }
         
-        private static void AddWorker(ref Workers workers, string departmentName, int workersCount)
-        {
-            Worker newWorker = new Worker();
-            var userAnswer = string.Empty;
-
-            newWorker.Id = workersCount + 1;
-            newWorker.DepartmentName = departmentName;
-            
-            do
-            {
-                Console.Write("Введите имя сотрудника: ");
-                userAnswer = Console.ReadLine().Trim();
-                if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
-                {
-                    newWorker.FirstName = userAnswer;
-                    break;
-                }
-                Console.WriteLine("Невозможно распознать ответ");
-            } while (true);
-            do
-            {
-                Console.Write("Введите фамилию сотрудника: ");
-                userAnswer = Console.ReadLine().Trim();
-                if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
-                {
-                    newWorker.LastName = userAnswer;
-                    break;
-                }
-                Console.WriteLine("Невозможно распознать ответ");
-            } while (true);
-            do
-            {
-                Console.Write("Введите фамилию сотрудника: ");
-                userAnswer = Console.ReadLine().Trim();
-                if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
-                {
-                    newWorker.LastName = userAnswer;
-                    break;
-                }
-                Console.WriteLine("Невозможно распознать ответ");
-            } while (true);
-            do
-            {
-                Console.Write("Введите дату рождения сотрудника: ");
-                userAnswer = Console.ReadLine().Trim();
-                if (DateTime.TryParse(userAnswer, out var bithdate))
-                {
-                    newWorker.Birthdate = bithdate;
-                    break;
-                }
-                Console.WriteLine("Невозможно распознать ответ");
-            } while (true);
-            do
-            {
-                Console.Write("Введите зарплату сотрудника: ");
-                userAnswer = Console.ReadLine().Trim();
-                if (int.TryParse(userAnswer, out var salary))
-                {
-                    newWorker.Salary = salary;
-                    break;
-                }
-                Console.WriteLine("Невозможно распознать ответ");
-            } while (true);
-            
-            workers.Add(newWorker);
-        }
-
-        private static void DelWorker(ref Workers workers)
-        {
-            throw new NotImplementedException();
-        }
-        
-        private static void EditWorker(ref Workers workers)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void SortWorekers(ref Workers workers)
-        {
-            throw new NotImplementedException();
-        }
-
         private static void SaveCompany(ref Company company)
         {
             var userAnswer = string.Empty;

@@ -37,7 +37,7 @@ namespace Homework_08
         /// <summary>
         /// Департамент
         /// </summary>
-        public string DepartmentName { get; set; }
+        public string Department;
 
         /// <summary>
         /// Зарплата
@@ -49,24 +49,14 @@ namespace Homework_08
         /// </summary>
         public DateTime Birthdate { get; set; }
 
-        /// <summary>
-        /// Конструктор
-        /// </summary>
-        /// <param name="id">Идентификатор</param>
-        /// <param name="firstName">Имя</param>
-        /// <param name="lastName">Фамилия</param>
-        /// <param name="birthdate">Дата рождения</param>
-        /// <param name="departmentName">Наименование департамента</param>
-        /// <param name="salary">Зарплата</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Worker(int id, string firstName, string lastName, DateTime birthdate, string departmentName, int salary)
+        public void Print()
         {
-            Id = id;
-            FirstName = firstName ?? throw new ArgumentNullException(nameof(firstName));
-            LastName = lastName ?? throw new ArgumentNullException(nameof(lastName));
-            Birthdate = birthdate;
-            DepartmentName = departmentName ?? throw new ArgumentNullException(nameof(firstName));
-            Salary = salary;
+            Console.WriteLine($"{FirstName, 20} {LastName, 30} {Age,5} годиков {Salary} руб");
+        }
+        
+        public void Print(int num)
+        {
+            Console.WriteLine($"{num, 3} {FirstName, 20} {LastName, 30} {Age,5} годиков {Salary} руб");
         }
 
     }

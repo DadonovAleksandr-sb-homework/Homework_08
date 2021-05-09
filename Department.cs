@@ -11,50 +11,27 @@ namespace Homework_08
         /// <summary>
         /// Наименование департамента
         /// </summary>
-        public string Name { get; }
+        public string Name { get; set; }
         /// <summary>
         /// Дата создания
         /// </summary>
-        public DateTime CreateDate { get; }
+        public DateTime CreateDate { get; set; }
+
+        public int WorkerCount { get; set; }
 
         /// <summary>
-        /// Кол-во сотрудников
+        /// Родительский департамент
         /// </summary>
-        public int WorkerCount => Workers.Count;
-        /// <summary>
-        /// Сотрудники
-        /// </summary>
-        public Workers Workers;
-        /// <summary>
-        /// Вложенные департаменты
-        /// </summary>
-        public Departments Departments;
-
-        
-        /// <summary>
-        /// Конструктор
-        /// </summary>
-        /// <param name="name">Наименование департамента</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Department(string name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            CreateDate = DateTime.Now.Date;
-
-            Workers = new Workers();
-            Departments = new Departments();
-            
-            Workers.Initialization();
-            Departments.Initialization();
-        }
+        public string ParentDepartment;
 
         public void Print()
         {
-            Console.WriteLine($"Департамент: {Name}");
-            Workers.Print();
-            Departments.Print();
+            Console.WriteLine($"{Name, 20} {CreateDate.ToShortDateString(), 10}");
         }
-
+        public void Print(int num)
+        {
+            Console.WriteLine($"{num, 3} {Name, 20} {CreateDate.ToShortDateString(), 10}");
+        }
         
 
         
