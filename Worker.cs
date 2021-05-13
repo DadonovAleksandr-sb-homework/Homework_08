@@ -48,12 +48,17 @@ namespace Homework_08
         /// Дата рождения
         /// </summary>
         public DateTime Birthdate { get; set; }
-
+        /// <summary>
+        /// Вывод информации о сотруднике
+        /// </summary>
         public void Print()
         {
             Console.WriteLine($"{FirstName, 20} {LastName, 30} {Age,5} годиков {Salary} руб");
         }
-        
+        /// <summary>
+        /// Вывод информации о сотруднике
+        /// </summary>
+        /// <param name="num"></param>
         public void Print(int num)
         {
             Console.WriteLine($"{num, 3} {FirstName, 20} {LastName, 30} {Age,5} годиков {Salary} руб");

@@ -3,18 +3,44 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 using Newtonsoft.Json;
 
 namespace Homework_08
 {
+    /// <summary>
+    /// Методы сортировки департаментов
+    /// </summary>
+    public enum DepartmentSortMode { Name, CreateDate, WorkerCount}
+    /// <summary>
+    /// Методы сортировки сотрудников
+    /// </summary>
+    public enum WorkerSortMode { FirstName, LastName, Age, Salary}
+    /// <summary>
+    /// Структура компании
+    /// </summary>
     public struct Company
     {
+        /// <summary>
+        /// Наименование компании
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Список департаментов
+        /// </summary>
         public List<Department> Departments;
+        /// <summary>
+        /// Список сотрудников
+        /// </summary>
         public List<Worker> Workers;
-        
+        /// <summary>
+        /// Файловое хранилище
+        /// </summary>
         private string _fileName;
-
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="fileName"></param>
         public Company(string fileName)
         {
             Name = string.Empty;
@@ -23,7 +49,11 @@ namespace Homework_08
             
             _fileName = fileName;
         }
-        
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="fileName"></param>
         public Company(string name, string fileName)
         {
             Name = name;
@@ -32,14 +62,19 @@ namespace Homework_08
             
             _fileName = fileName;
         }
-
+        /// <summary>
+        /// Очистка данных о компании
+        /// </summary>
         public void Clear()
         {
             Name = string.Empty;
             Departments = new List<Department>();
             Workers = new List<Worker>();
         }
-        
+        /// <summary>
+        /// Вывод информации о департаменте
+        /// </summary>
+        /// <param name="department"></param>
         public void PrintDepartment(string department)
         {
             int index = Departments.FindIndex(x => x.Name == department);
@@ -49,7 +84,10 @@ namespace Homework_08
             PrintWorkers(department);
             PrintDepartments(department);
         }
-
+        /// <summary>
+        /// Вывод информации о списке сотрудников
+        /// </summary>
+        /// <param name="department"></param>
         public void PrintWorkers(string department)
         {
             Console.WriteLine("Сотрудники:");
@@ -66,51 +104,101 @@ namespace Homework_08
                 Console.WriteLine("\tИнформация отсутсвует");
             }
         }
-        
-        public void PrintDepartments(string department)
+        /// <summary>
+        /// Вывод информации о списке сотрудников в упорядоченном виде
+        /// </summary>
+        /// <param name="department"></param>
+        /// <param name="sortMode"></param>
+        public void PrintWorkers(string department, WorkerSortMode sortMode)
         {
-            Console.WriteLine("Вложенные департаменты:");
-            int i = 0;
-            foreach (var dep in Departments)
+            Console.WriteLine("Сотрудники:");
+            var workers= Workers.Select(x=>x).Where(x=>x.Department==department);;
+            switch (sortMode)
             {
-                if (dep.ParentDepartment == department)
-                {
-                    dep.Print(++i);   
-                }
+                case WorkerSortMode.FirstName:
+                    workers = workers.OrderBy(x => x.FirstName);
+                    break;
+                case WorkerSortMode.LastName:
+                    workers = workers.OrderBy(x => x.LastName);
+                    break;
+                case WorkerSortMode.Age:
+                    workers = workers.OrderBy(x=>x.Age);
+                    break;
+                case WorkerSortMode.Salary:
+                    workers = workers.OrderBy(x=>x.Salary);
+                    break;
             }
-            if (i == 0)
+            int i = 0;
+            foreach (var worker in workers)
+            {
+                worker.Print(++i);
+            }
+            if(i == 0)
             {
                 Console.WriteLine("\tИнформация отсутсвует");
             }
         }
-        
+        /// <summary>
+        /// Вывод информации о списке департаментов
+        /// </summary>
+        /// <param name="department"></param>
+        public void PrintDepartments(string department)
+        {
+            Console.WriteLine("Вложенные департаменты:");
+            var deps = Departments.Select(x=>x).Where(x=>x.ParentDepartment==department);
+            int i = 0;
+            foreach (var dep in deps)
+            {
+                dep.Print(++i);
+            }
+            if(i == 0)
+            {
+                Console.WriteLine("\tИнформация отсутсвует");
+            }
+        }
+        /// <summary>
+        /// Вывод информации о списке департаментов в упорядоченном виде
+        /// </summary>
+        /// <param name="department"></param>
+        /// <param name="sort"></param>
+        public void PrintDepartments(string department, DepartmentSortMode sort)
+        {
+            Console.WriteLine("Вложенные департаменты:");
+            var deps= Departments.Select(x=>x).Where(x=>x.ParentDepartment==department);;
+            switch (sort)
+            {
+                case DepartmentSortMode.Name:
+                    deps = deps.OrderBy(x => x.Name);
+                    break;
+                case DepartmentSortMode.CreateDate:
+                    deps = deps.OrderBy(x => x.CreateDate);
+                    break;
+                case DepartmentSortMode.WorkerCount:
+                    deps = deps.OrderBy(x=>x.WorkerCount);
+                    break;
+            }
+            int i = 0;
+            foreach (var dep in deps)
+            {
+                dep.Print(++i);
+            }
+            if(i == 0)
+            {
+                Console.WriteLine("\tИнформация отсутсвует");
+            }
+        }
+        /// <summary>
+        /// Вывод информации о компании
+        /// </summary>
         public void Print()
         {
             Console.WriteLine($"Компания: {Name}");
             PrintDepartments(Name);
         }
-        public bool Load()
-        {
-            
-            if(!File.Exists(_fileName))
-                return false;
-            // JSON
-            string jsonStr = File.ReadAllText(_fileName, Encoding.UTF8);
-            var company = JsonConvert.DeserializeObject<Company>(jsonStr);
-            Name = company.Name;
-            Departments = company.Departments;
-            return true;
-            // XML
-        }
-
-        public void Save()
-        {
-            // JSON
-            string jsonStr = JsonConvert.SerializeObject(this);
-            File.WriteAllText(_fileName, jsonStr, Encoding.UTF8);
-
-        }
-        
+        /// <summary>
+        /// Процесс работы с компанией
+        /// </summary>
+        /// <param name="department"></param>
         public void Process(string department)
         {
             PrintDepartment(department);
@@ -125,21 +213,9 @@ namespace Homework_08
                     switch(userAnwer)
                     {
                         case 1:
-                            // curDepIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == department));
-                            // if(curDepIndex<0)
-                            // {
-                            //     Console.WriteLine($"Департамент {department} отсутствует в системе");
-                            //     break;
-                            // }
                             WorkersProcess(department);
                             break;
                         case 2:
-                            // curDepIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == department));
-                            // if(curDepIndex<0)
-                            // {
-                            //     Console.WriteLine($"Департамент {department} отсутствует в системе");
-                            //     break;
-                            // }
                             DepartmentsProcess(department);
                             break;
                         case 3:
@@ -166,7 +242,10 @@ namespace Homework_08
                 }
             } while (!exit);
         }
-        
+        /// <summary>
+        /// Процесс работы со списком департаментов
+        /// </summary>
+        /// <param name="department"></param>
         private void DepartmentsProcess(string department)
         {
             PrintDepartments(department);
@@ -174,7 +253,7 @@ namespace Homework_08
             var exit = false;
             do
             {
-                Console.Write("Выберете желаемое действие (1-добавить; 2-удалить; 3-редактировать; 4-сортировать; 5-выход): ");
+                Console.Write("Выберете желаемое действие (1-добавить; 2-удалить; 3-редактировать; 4-сортировать; 5-перейти к департаменту; 6-выход): ");
                 if (int.TryParse(Console.ReadLine().Trim(), out userAnwer))
                 {
                     switch(userAnwer)
@@ -191,7 +270,10 @@ namespace Homework_08
                         case 4: // сортировать
                             SortDepartment(department);
                             break;
-                        case 5: // выход
+                        case 5: // перейти к департаменту
+                            GoToDepartment(department);
+                            break;
+                        case 6: // выход
                             exit = true;
                             break;
                         default:
@@ -201,7 +283,10 @@ namespace Homework_08
                 }
             } while (!exit);
         }
-
+        /// <summary>
+        /// Процесс работы со списком работников
+        /// </summary>
+        /// <param name="department"></param>
         private void WorkersProcess(string department)
         {
             PrintWorkers(department);
@@ -236,7 +321,10 @@ namespace Homework_08
                 }
             } while (!exit);
         }
-
+        /// <summary>
+        /// Добавление департамента
+        /// </summary>
+        /// <param name="parentDepartment"></param>
         private void AddDepartment(string parentDepartment)
         {
             Department newDepartment = new Department();
@@ -259,7 +347,10 @@ namespace Homework_08
             Console.Write($"Добавлен департамент: ");
             newDepartment.Print();
         }
-
+        /// <summary>
+        /// Удаление департамента
+        /// </summary>
+        /// <param name="department"></param>
         private void DelDepartment(string department)
         {
             var userAnswer = string.Empty;
@@ -277,7 +368,10 @@ namespace Homework_08
                 Console.WriteLine("Невозможно распознать ответ");
             } while (true);
         }
-        
+        /// <summary>
+        /// Редактирование департамента
+        /// </summary>
+        /// <param name="department"></param>
         private void EditDepartment(string department)
         {
             var userAnswer = string.Empty;
@@ -324,12 +418,70 @@ namespace Homework_08
                 Console.WriteLine("Невозможно распознать ответ");
             } while (true);
         }
-        
+        /// <summary>
+        /// Сортировка списка департаментов
+        /// </summary>
+        /// <param name="department"></param>
         private void SortDepartment(string department)
         {
-            throw new NotImplementedException();
+            var userAnswer = string.Empty;
+            var exit = false;
+            do
+            {
+                Console.Write($"Введите параметр для сортировки (1-наименование, 2-дата создания, 3-кол-во сотрудников): ");
+                userAnswer = Console.ReadLine().Trim();
+                if (int.TryParse(userAnswer, out var sort))
+                {
+                    switch (sort)
+                    {
+                        case 1:
+                            PrintDepartments(department, DepartmentSortMode.Name);
+                            exit = true;
+                            break;
+                        case 2:
+                            PrintDepartments(department, DepartmentSortMode.CreateDate);
+                            exit = true;
+                            break;
+                        case 3:
+                            PrintDepartments(department, DepartmentSortMode.WorkerCount);
+                            exit = true;
+                            break;
+                        default:
+                            Console.WriteLine("Невозможно распознать ответ");
+                            break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Невозможно распознать ответ");    
+                }
+            } while (!exit);
         }
-        
+        /// <summary>
+        /// Переход к департаменту по имени
+        /// </summary>
+        /// <param name="department"></param>
+        private void GoToDepartment(string department)
+        {
+            var userAnswer = string.Empty;
+            var depIndex = -1;
+            do
+            {
+                Console.Write("Введите наименование департамента: ");
+                userAnswer = Console.ReadLine().Trim();
+                depIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == userAnswer));
+                if (depIndex>=0)
+                {
+                    Process(Departments[depIndex].Name);
+                    break;
+                }
+                Console.WriteLine($"Невозможно найти департамент {userAnswer}");
+            } while (true);
+        }
+        /// <summary>
+        /// Добавление сотрудника
+        /// </summary>
+        /// <param name="department"></param>
         public void AddWorker(string department)
         {
             Worker newWorker = new Worker();
@@ -385,26 +537,54 @@ namespace Homework_08
             
             Workers.Add(newWorker);
             var depIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == department));
-            Departments[depIndex].WorkerCount++;
+            if(depIndex>=0)
+            {
+                var dep = Departments[depIndex];
+                dep.WorkerCount++;
+                Departments.RemoveAt(depIndex);
+                Departments.Add(dep);
+            }
             Console.Write($"Добавлен сотрудник: ");
             newWorker.Print();
         }
-
+        /// <summary>
+        /// Удаление сотрудника
+        /// </summary>
+        /// <param name="department"></param>
         private void DelWorker(string department)
         {
             var userAnswer = string.Empty;
             do
             {
-                Console.Write("Введите идентификатор работника для его удаления или \"exit\" для выхода: ");
+                Console.Write("Введите идентификатор работника для его удаления или \"выход\" для выхода: ");
                 userAnswer = Console.ReadLine().Trim();
                 if (int.TryParse(userAnswer, out var id))
                 {
-                    Workers.Remove(Workers.Single(x => x.Id == id));
+                    var workerIndex = Workers.IndexOf(Workers.SingleOrDefault(x => x.Id == id));
+                    if (workerIndex < 0)
+                    {
+                        Console.WriteLine($"Сотрудник с идентификатором {id} не найден");
+                    }
+                    var worker = Workers[workerIndex];
+                    Workers.RemoveAt(workerIndex);
+                    var depIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == department));
+                    if(depIndex>=0)
+                    {
+                        var dep = Departments[depIndex];
+                        dep.WorkerCount--;
+                        Departments.RemoveAt(depIndex);
+                        Departments.Add(dep);
+                    }
+                    Console.Write($"Удален сотрудник: ");
+                    worker.Print();
                 }
                 Console.WriteLine("Невозможно распознать ответ");
             } while (true);
         }
-        
+        /// <summary>
+        /// Редактирование сотрудника
+        /// </summary>
+        /// <param name="department"></param>
         private void EditWorker(string department)
         {
             var userAnswer = string.Empty;
@@ -475,18 +655,120 @@ namespace Homework_08
             
             Workers.Add(newWorker);
         }
-        
+        /// <summary>
+        /// Сортировка списка сотрудников
+        /// </summary>
+        /// <param name="department"></param>
         private void SortWorekers(string department)
         {
-            throw new NotImplementedException();
+            var userAnswer = string.Empty;
+            var exit = false;
+            do
+            {
+                Console.Write($"Введите параметр для сортировки (1-имя, 2-фамилия, 3-возраст, 4-зарплата): ");
+                userAnswer = Console.ReadLine().Trim();
+                if (int.TryParse(userAnswer, out var sort))
+                {
+                    switch (sort)
+                    {
+                        case 1:
+                            PrintWorkers(department, WorkerSortMode.FirstName);
+                            exit = true;
+                            break;
+                        case 2:
+                            PrintWorkers(department, WorkerSortMode.LastName);
+                            exit = true;
+                            break;
+                        case 3:
+                            PrintWorkers(department, WorkerSortMode.Age);
+                            exit = true;
+                            break;
+                        case 4:
+                            PrintWorkers(department, WorkerSortMode.Salary);
+                            exit = true;
+                            break;
+                        default:
+                            Console.WriteLine("Невозможно распознать ответ");
+                            break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Невозможно распознать ответ");    
+                }
+            } while (!exit);
         }
-        
-        
-        
-        
-        
-        
-        
+        /// <summary>
+        /// Загрузка информации о компании в формате JSON и XML
+        /// </summary>
+        /// <returns></returns>
+        public bool Load()
+        {
+            var userAnswer = string.Empty;
+            do
+            {
+                Console.Write("Выберите данные для десериализации(1-json; 2-xml): ");
+                userAnswer = Console.ReadLine();
+                if (int.TryParse(userAnswer, out var num))
+                {
+                    var filePath = string.Empty;
+                    if (num == 1)
+                    {
+                        // JSON
+                        filePath = _fileName + ".json";
+                        if (!File.Exists(filePath))
+                        {
+                            Console.WriteLine($"Файл {filePath} не найден");
+                            return false;
+                        }
+                        string jsonStr = File.ReadAllText(filePath, Encoding.UTF8);
+                        var company = JsonConvert.DeserializeObject<Company>(jsonStr);
+                        Name = company.Name;
+                        Departments = company.Departments;
+                        Workers = company.Workers;
+                        break;
+                    }
+                    else if (num == 2)
+                    {
+                        // XML
+                        filePath = _fileName + ".xml";
+                        if (!File.Exists(filePath))
+                        {
+                            Console.WriteLine($"Файл {filePath} не найден");
+                            return false;
+                        }
+                        XmlSerializer xmlSerializer = new XmlSerializer(typeof(Company));
+                        using (Stream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                        {
+                            var company = (Company)xmlSerializer.Deserialize(fs);
+                            Name = company.Name;
+                            Departments = company.Departments;
+                            Workers = company.Workers;
+                        }
+                        break;
+                    }
+                }
+                Console.WriteLine("Невозможно распознать ответ");
+            } while (true);
+            return true;
+        }
+        /// <summary>
+        /// Сохранение информации о компании в формате JSON и XML
+        /// </summary>
+        public void Save()
+        {
+            // JSON
+            string jsonStr = JsonConvert.SerializeObject(this);
+            jsonStr = JsonConvert.SerializeObject(this, Formatting.Indented);
+            File.WriteAllText(_fileName+".json", jsonStr, Encoding.UTF8);
+            // XML
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(Company));
+            using (Stream fs = new FileStream(_fileName+".xml", FileMode.Create, FileAccess.Write))
+            {
+                xmlSerializer.Serialize(fs, this);
+            }
+        }
+
         
         
         

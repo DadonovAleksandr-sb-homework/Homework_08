@@ -62,7 +62,11 @@ namespace Homework_08
             ProcessCompany(ref company);
             SaveCompany(ref company);
         }
-
+        
+        /// <summary>
+        /// Загрузка информации о компании из файла
+        /// </summary>
+        /// <param name="company"></param>
         private static void InitCompany(ref Company company)
         {
             var userAnswer = string.Empty;
@@ -72,15 +76,15 @@ namespace Homework_08
             {
                 do
                 {
-                    Console.Write($"Желаете продолжить работу с предприятием {company.Name}? (y/n): ");
+                    Console.Write($"Желаете продолжить работу с предприятием {company.Name}? (д/н): ");
                     userAnswer = Console.ReadLine().Trim().ToLower();
-                    if (userAnswer == "y")
+                    if (userAnswer == "д")
                     {
                         result = true;
                         break;
                     }
 
-                    if (userAnswer == "n")
+                    if (userAnswer == "н")
                     {
                         break;
                     }
@@ -106,24 +110,32 @@ namespace Homework_08
             company.Print();
         }
 
+        /// <summary>
+        /// Работа с департаментами компании
+        /// </summary>
+        /// <param name="company"></param>
         private static void ProcessCompany(ref Company company)
         {
             company.Process(company.Name);
         }
         
+        /// <summary>
+        /// Сохранение данных о компании
+        /// </summary>
+        /// <param name="company"></param>
         private static void SaveCompany(ref Company company)
         {
             var userAnswer = string.Empty;
             do
             {
-                Console.Write("Желаете сохранить внесенные изменения? (y/n): ");
+                Console.Write("Желаете сохранить внесенные изменения? (д/н): ");
                 userAnswer = Console.ReadLine().Trim().ToLower();
-                if (userAnswer == "y")
+                if (userAnswer == "д")
                 {
                     company.Save();
                     break;
                 }
-                if (userAnswer == "n")
+                if (userAnswer == "н")
                 {
                     break;
                 }
