@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -202,43 +203,41 @@ namespace Homework_08
         public void Process(string department)
         {
             PrintDepartment(department);
-            var userAnwer = 0;
+            var userAnwer = string.Empty;
             var exit = false;
             do
             {
-                Console.Write("Выберете желаемое действие (1-перейти к списку работников; 2-перейти к списку департаментов; 3-перейти к вышестоящему департаменту; 5-выход): ");
-                if (int.TryParse(Console.ReadLine().Trim(), out userAnwer))
+                Console.Write("Выберете желаемое действие (1-перейти к списку работников; 2-перейти к списку департаментов; 3-перейти к вышестоящему департаменту; exit-выход): ");
+                userAnwer = Console.ReadLine().Trim();
+                switch(userAnwer)
                 {
-                    var curDepIndex = -1;
-                    switch(userAnwer)
-                    {
-                        case 1:
-                            WorkersProcess(department);
+                    case "1":
+                        WorkersProcess(department);
+                        break;
+                    case "2":
+                        DepartmentsProcess(department);
+                        break;
+                    case "3":
+                        if (department == Name)
+                        {
+                            Console.WriteLine("Вы уже находитесь в корневом элементе (уровень компании)");
                             break;
-                        case 2:
-                            DepartmentsProcess(department);
+                        }
+                        var curDepIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == department));
+                        if(curDepIndex<0)
+                        {
+                            Console.WriteLine($"Департамент {department} отсутствует в системе");
                             break;
-                        case 3:
-                            if (department == Name)
-                            {
-                                Console.WriteLine("Вы уже находитесь в корневом элементе (уровень компании)");
-                                break;
-                            }
-                            curDepIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == department));
-                            if(curDepIndex<0)
-                            {
-                                Console.WriteLine($"Департамент {department} отсутствует в системе");
-                                break;
-                            }
-                            Process(Departments[curDepIndex].ParentDepartment);
-                            break;
-                        case 5: // выход
-                            exit = true;
-                            break;
-                        default:
-                            Console.WriteLine("Невозможно распознать ответ");
-                            break;
-                    }  
+                        }
+                        Process(Departments[curDepIndex].ParentDepartment);
+                        break;
+                    case "exit": // выход
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Невозможно распознать ответ");
+                        break;
+              
                 }
             } while (!exit);
         }
@@ -249,38 +248,53 @@ namespace Homework_08
         private void DepartmentsProcess(string department)
         {
             PrintDepartments(department);
-            var userAnwer = 0;
+            var userAnwer = string.Empty;
             var exit = false;
+            List<Department> deps;
             do
             {
-                Console.Write("Выберете желаемое действие (1-добавить; 2-удалить; 3-редактировать; 4-сортировать; 5-перейти к департаменту; 6-выход): ");
-                if (int.TryParse(Console.ReadLine().Trim(), out userAnwer))
+                Console.Write("Выберете желаемое действие (1-добавить; 2-удалить; 3-редактировать; 4-сортировать; 5-перейти к департаменту; exit-выход): ");
+                userAnwer = Console.ReadLine();
+                deps= Departments.Where(x=>x.Name==department).ToList();
+                switch(userAnwer)
                 {
-                    switch(userAnwer)
-                    {
-                        case 1: // добавить
-                            AddDepartment(department);
+                    case "1": // добавить
+                        AddDepartment(department);
+                        break;
+                    case "2": // удалить
+                        if (deps.Count == 0)
+                        {
+                            Console.WriteLine($"В департаменте {department} нет вложенных департаментов.");
                             break;
-                        case 2: // удалить
-                            DelDepartment(department);
+                        }
+                        DelDepartment(department);
+                        break;
+                    case "3": // редактировать
+                        if (deps.Count == 0)
+                        {
+                            Console.WriteLine($"В департаменте {department} нет вложенных департаментов.");
                             break;
-                        case 3: // редактировать
-                            EditDepartment(department);
+                        }
+                        EditDepartment(department);
+                        break;
+                    case "4": // сортировать
+                        if (deps.Count == 0)
+                        {
+                            Console.WriteLine($"В департаменте {department} нет вложенных департаментов.");
                             break;
-                        case 4: // сортировать
-                            SortDepartment(department);
-                            break;
-                        case 5: // перейти к департаменту
-                            GoToDepartment(department);
-                            break;
-                        case 6: // выход
-                            exit = true;
-                            break;
-                        default:
-                            Console.WriteLine("Невозможно распознать ответ");
-                            break;
-                    }  
-                }
+                        }
+                        SortDepartment(department);
+                        break;
+                    case "5": // перейти к департаменту
+                        GoToDepartment(department);
+                        break;
+                    case "exit": // выход
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Невозможно распознать ответ");
+                        break;
+                }  
             } while (!exit);
         }
         /// <summary>
@@ -290,34 +304,49 @@ namespace Homework_08
         private void WorkersProcess(string department)
         {
             PrintWorkers(department);
-            var userAnwer = 0;
+            var userAnwer = string.Empty;
             var exit = false;
+            List<Worker> workers;
             do
             {
-                Console.Write("Выберете желаемое действие (1-добавить; 2-удалить; 3-редактировать; 4-сортировать; 5-выход): ");
-                if (int.TryParse(Console.ReadLine().Trim(), out userAnwer))
+                Console.Write("Выберете желаемое действие (1-добавить; 2-удалить; 3-редактировать; 4-сортировать; exit-выход): ");
+                userAnwer = Console.ReadLine();
+                workers= Workers.Select(x=>x).Where(x=>x.Department==department).ToList();
+                switch(userAnwer)
                 {
-                    switch(userAnwer)
-                    {
-                        case 1: // добавить
-                            AddWorker(department);
+                    case "1": // добавить
+                        AddWorker(department);
+                        break;
+                    case "2": // удалить
+                        if (workers.Count == 0)
+                        {
+                            Console.WriteLine($"В департаменте {department} нет сотрудников.");
                             break;
-                        case 2: // удалить
-                            DelWorker(department);
+                        }
+                        DelWorker(department);
+                        break;
+                    case "3": // редактировать
+                        if (workers.Count == 0)
+                        {
+                            Console.WriteLine($"В департаменте {department} нет сотрудников.");
                             break;
-                        case 3: // редактировать
-                            EditWorker(department);
+                        }
+                        EditWorker(department);
+                        break;
+                    case "4": // сортировать
+                        if (workers.Count == 0)
+                        {
+                            Console.WriteLine($"В департаменте {department} нет сотрудников.");
                             break;
-                        case 4: // сортировать
-                            SortWorekers(department);
-                            break;
-                        case 5: // выход
-                            exit = true;
-                            break;
-                        default:
-                            Console.WriteLine("Невозможно распознать ответ");
-                            break;
-                    }  
+                        }
+                        SortWorekers(department);
+                        break;
+                    case "exit": // выход
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Невозможно распознать ответ");
+                        break;
                 }
             } while (!exit);
         }
@@ -331,8 +360,12 @@ namespace Homework_08
             var userAnswer = string.Empty;
             do
             {
-                Console.Write("Введите наименование департамента: ");
+                Console.Write("Введите наименование департамента (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
                 if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
                 {
                     newDepartment.Name = userAnswer;
@@ -356,14 +389,30 @@ namespace Homework_08
             var userAnswer = string.Empty;
             do
             {
-                Console.Write("Введите наименование департамента для его удаления или \"exit\" для выхода: ");
+                Console.Write("Введите наименование департамента для его удаления (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
+                var deps= Departments.Select(x=>x).Where(x=>x.Name==department).ToList();
+                if (deps.Count == 0)
+                {
+                    Console.WriteLine($"В департаменте {department} нет вложенных департаментов.");
+                    return;
+                }
                 if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
                 {
-                    if (userAnswer == "exit" || Departments.Remove(Departments.SingleOrDefault(x => x.Name == department)))
+                    var depIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == userAnswer && x.ParentDepartment == department));
+                    if (depIndex < 0)
                     {
-                        break;    
+                        Console.WriteLine($"Департамент {userAnswer} не найден");
+                        continue;
                     }
+                    var dep = Departments[depIndex];
+                    Departments.RemoveAt(depIndex);
+                    Console.Write($"Удален департамент: ");
+                    dep.Print();
                 }
                 Console.WriteLine("Невозможно распознать ответ");
             } while (true);
@@ -383,8 +432,12 @@ namespace Homework_08
             }   
             do
             {
-                Console.Write("Введите новое название для департамента: ");
+                Console.Write("Введите новое название для департамента (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
                 if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
                 {
                     var oldName = Departments[depIndex].Name;
@@ -428,32 +481,28 @@ namespace Homework_08
             var exit = false;
             do
             {
-                Console.Write($"Введите параметр для сортировки (1-наименование, 2-дата создания, 3-кол-во сотрудников): ");
+                Console.Write($"Введите параметр для сортировки (1-наименование, 2-дата создания, 3-кол-во сотрудников, exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
-                if (int.TryParse(userAnswer, out var sort))
+                switch (userAnswer)
                 {
-                    switch (sort)
-                    {
-                        case 1:
-                            PrintDepartments(department, DepartmentSortMode.Name);
-                            exit = true;
-                            break;
-                        case 2:
-                            PrintDepartments(department, DepartmentSortMode.CreateDate);
-                            exit = true;
-                            break;
-                        case 3:
-                            PrintDepartments(department, DepartmentSortMode.WorkerCount);
-                            exit = true;
-                            break;
-                        default:
-                            Console.WriteLine("Невозможно распознать ответ");
-                            break;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Невозможно распознать ответ");    
+                    case "1":
+                        PrintDepartments(department, DepartmentSortMode.Name);
+                        exit = true;
+                        break;
+                    case "2":
+                        PrintDepartments(department, DepartmentSortMode.CreateDate);
+                        exit = true;
+                        break;
+                    case "3":
+                        PrintDepartments(department, DepartmentSortMode.WorkerCount);
+                        exit = true;
+                        break;
+                    case "exit":
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Невозможно распознать ответ");
+                        break;
                 }
             } while (!exit);
         }
@@ -467,8 +516,12 @@ namespace Homework_08
             var depIndex = -1;
             do
             {
-                Console.Write("Введите наименование департамента: ");
+                Console.Write("Введите наименование департамента (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
                 depIndex = Departments.IndexOf(Departments.SingleOrDefault(x => x.Name == userAnswer));
                 if (depIndex>=0)
                 {
@@ -492,8 +545,12 @@ namespace Homework_08
             
             do
             {
-                Console.Write("Введите имя сотрудника: ");
+                Console.Write("Введите имя сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
                 if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
                 {
                     newWorker.FirstName = userAnswer;
@@ -503,8 +560,12 @@ namespace Homework_08
             } while (true);
             do
             {
-                Console.Write("Введите фамилию сотрудника: ");
+                Console.Write("Введите фамилию сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
                 if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
                 {
                     newWorker.LastName = userAnswer;
@@ -514,8 +575,12 @@ namespace Homework_08
             } while (true);
             do
             {
-                Console.Write("Введите дату рождения сотрудника: ");
+                Console.Write("Введите дату рождения сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
                 if (DateTime.TryParse(userAnswer, out var bithdate))
                 {
                     newWorker.Birthdate = bithdate;
@@ -525,8 +590,12 @@ namespace Homework_08
             } while (true);
             do
             {
-                Console.Write("Введите зарплату сотрудника: ");
+                Console.Write("Введите зарплату сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
                 if (int.TryParse(userAnswer, out var salary))
                 {
                     newWorker.Salary = salary;
@@ -556,11 +625,21 @@ namespace Homework_08
             var userAnswer = string.Empty;
             do
             {
-                Console.Write("Введите идентификатор работника для его удаления или \"выход\" для выхода: ");
+                Console.Write("Введите идентификатор работника для его удаления (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
+                var workers= Workers.Select(x=>x).Where(x=>x.Department==department).ToList();
+                if (workers.Count == 0)
+                {
+                    Console.WriteLine($"В департаменте {department} нет сотрудников.");
+                    return;
+                }
                 if (int.TryParse(userAnswer, out var id))
                 {
-                    var workerIndex = Workers.IndexOf(Workers.SingleOrDefault(x => x.Id == id));
+                    var workerIndex = Workers.IndexOf(Workers.SingleOrDefault(x => x.Id == id && x.Department == department));
                     if (workerIndex < 0)
                     {
                         Console.WriteLine($"Сотрудник с идентификатором {id} не найден");
@@ -587,15 +666,25 @@ namespace Homework_08
         /// <param name="department"></param>
         private void EditWorker(string department)
         {
+            var workers= Workers.Select(x=>x).Where(x=>x.Department==department).ToList();
+            if (workers.Count == 0)
+            {
+                Console.WriteLine($"В департаменте {department} нет сотрудников.");
+                return;
+            }
             var userAnswer = string.Empty;
             var workerIndex = 0;
             do
             {
-                Console.Write("Введите идентификационный номер сотрудника: ");
+                Console.Write("Введите идентификационный номер сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer == "exit")
+                {
+                    return;
+                }
                 if (int.TryParse(userAnswer, out var id))
                 {
-                    workerIndex = Workers.IndexOf(Workers.Single(x => x.Id == id));
+                    workerIndex = Workers.IndexOf(Workers.SingleOrDefault(x => x.Id == id));
                     if (workerIndex < 0)
                     {
                         Console.WriteLine($"Невозможно найти сотрудника с идентификаторм {id}");
@@ -610,8 +699,12 @@ namespace Homework_08
             Workers.RemoveAt(workerIndex);
             do
             {
-                Console.Write("Введите имя сотрудника: ");
+                Console.Write("Введите имя сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer=="exit")
+                {
+                    return;
+                }
                 if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
                 {
                     newWorker.FirstName = userAnswer;
@@ -621,8 +714,12 @@ namespace Homework_08
             } while (true);
             do
             {
-                Console.Write("Введите фамилию сотрудника: ");
+                Console.Write("Введите фамилию сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer=="exit")
+                {
+                    return;
+                }
                 if (!string.IsNullOrEmpty(userAnswer) && !string.IsNullOrWhiteSpace(userAnswer))
                 {
                     newWorker.LastName = userAnswer;
@@ -632,8 +729,12 @@ namespace Homework_08
             } while (true);
             do
             {
-                Console.Write("Введите дату рождения сотрудника: ");
+                Console.Write("Введите дату рождения сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer=="exit")
+                {
+                    return;
+                }
                 if (DateTime.TryParse(userAnswer, out var bithdate))
                 {
                     newWorker.Birthdate = bithdate;
@@ -643,8 +744,12 @@ namespace Homework_08
             } while (true);
             do
             {
-                Console.Write("Введите зарплату сотрудника: ");
+                Console.Write("Введите зарплату сотрудника (exit-для выхода): ");
                 userAnswer = Console.ReadLine().Trim();
+                if (userAnswer=="exit")
+                {
+                    return;
+                }
                 if (int.TryParse(userAnswer, out var salary))
                 {
                     newWorker.Salary = salary;
@@ -665,36 +770,32 @@ namespace Homework_08
             var exit = false;
             do
             {
-                Console.Write($"Введите параметр для сортировки (1-имя, 2-фамилия, 3-возраст, 4-зарплата): ");
+                Console.Write($"Введите параметр для сортировки (1-имя, 2-фамилия, 3-возраст, 4-зарплата, exit-выход): ");
                 userAnswer = Console.ReadLine().Trim();
-                if (int.TryParse(userAnswer, out var sort))
+                switch (userAnswer)
                 {
-                    switch (sort)
-                    {
-                        case 1:
-                            PrintWorkers(department, WorkerSortMode.FirstName);
-                            exit = true;
-                            break;
-                        case 2:
-                            PrintWorkers(department, WorkerSortMode.LastName);
-                            exit = true;
-                            break;
-                        case 3:
-                            PrintWorkers(department, WorkerSortMode.Age);
-                            exit = true;
-                            break;
-                        case 4:
-                            PrintWorkers(department, WorkerSortMode.Salary);
-                            exit = true;
-                            break;
-                        default:
-                            Console.WriteLine("Невозможно распознать ответ");
-                            break;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Невозможно распознать ответ");    
+                    case "1":
+                        PrintWorkers(department, WorkerSortMode.FirstName);
+                        exit = true;
+                        break;
+                    case "2":
+                        PrintWorkers(department, WorkerSortMode.LastName);
+                        exit = true;
+                        break;
+                    case "3":
+                        PrintWorkers(department, WorkerSortMode.Age);
+                        exit = true;
+                        break;
+                    case "4":
+                        PrintWorkers(department, WorkerSortMode.Salary);
+                        exit = true;
+                        break;
+                    case "exit":
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Невозможно распознать ответ");
+                        break;
                 }
             } while (!exit);
         }
@@ -705,16 +806,16 @@ namespace Homework_08
         public bool Load()
         {
             var userAnswer = string.Empty;
+            var filePath = string.Empty;
+            var exit = false;
+            Company company;
             do
             {
-                Console.Write("Выберите данные для десериализации(1-json; 2-xml): ");
+                Console.Write("Выберите данные для десериализации(1-json, 2-xml, exit-выход): ");
                 userAnswer = Console.ReadLine();
-                if (int.TryParse(userAnswer, out var num))
+                switch (userAnswer)
                 {
-                    var filePath = string.Empty;
-                    if (num == 1)
-                    {
-                        // JSON
+                    case "1":   // JSON
                         filePath = _fileName + ".json";
                         if (!File.Exists(filePath))
                         {
@@ -722,15 +823,13 @@ namespace Homework_08
                             return false;
                         }
                         string jsonStr = File.ReadAllText(filePath, Encoding.UTF8);
-                        var company = JsonConvert.DeserializeObject<Company>(jsonStr);
+                        company = JsonConvert.DeserializeObject<Company>(jsonStr);
                         Name = company.Name;
                         Departments = company.Departments;
                         Workers = company.Workers;
+                        exit = true;
                         break;
-                    }
-                    else if (num == 2)
-                    {
-                        // XML
+                    case "2":   // XML
                         filePath = _fileName + ".xml";
                         if (!File.Exists(filePath))
                         {
@@ -740,16 +839,21 @@ namespace Homework_08
                         XmlSerializer xmlSerializer = new XmlSerializer(typeof(Company));
                         using (Stream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                         {
-                            var company = (Company)xmlSerializer.Deserialize(fs);
+                            company = (Company)xmlSerializer.Deserialize(fs);
                             Name = company.Name;
                             Departments = company.Departments;
                             Workers = company.Workers;
                         }
+                        exit = true;
                         break;
-                    }
+                    case "exit":
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Невозможно распознать ответ");
+                        break;
                 }
-                Console.WriteLine("Невозможно распознать ответ");
-            } while (true);
+            } while (!exit);
             return true;
         }
         /// <summary>
